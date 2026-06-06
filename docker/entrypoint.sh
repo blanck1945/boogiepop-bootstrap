@@ -17,7 +17,7 @@ sync_infra_from_git() {
   rm -rf "$TMP"
 }
 
-if [ -n "${INFRA_GIT_REPO:-}" ]; then
+if [ -n "${INFRA_GIT_REPO:-}" ] && [ "${INFRA_SKIP_SYNC:-}" != "true" ]; then
   if [ ! -f "$TF_DIR/versions.tf" ] || [ ! -f "$TF_DIR/ecs.tf" ]; then
     sync_infra_from_git
   elif [ -d "$TF_DIR/.git" ]; then
