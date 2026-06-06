@@ -17,6 +17,7 @@ RUN npm run build
 FROM node:22-bookworm-slim AS runner
 
 ARG TERRAFORM_VERSION=1.9.8
+ARG CACHEBUST=1
 
 RUN apt-get update && apt-get install -y \
     git curl unzip ca-certificates awscli \
@@ -32,6 +33,7 @@ COPY --from=builder /app/boogiepop-bootstrap-core /app/boogiepop-bootstrap-core
 COPY --from=builder /app/boogiepop-bootstrap/package*.json ./
 COPY --from=builder /app/boogiepop-bootstrap/node_modules ./node_modules
 COPY --from=builder /app/boogiepop-bootstrap/dist ./dist
+RUN ln -sfn ../boogiepop-bootstrap-core node_modules/boogiepop-bootstrap-core
 COPY boogiepop-bootstrap/docker/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
