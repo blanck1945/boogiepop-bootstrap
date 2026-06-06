@@ -28,7 +28,7 @@ RUN apt-get update && apt-get install -y \
 WORKDIR /app
 ENV NODE_ENV=production
 
-COPY --from=builder /app/boogiepop-bootstrap-core /app/core
+COPY --from=builder /app/boogiepop-bootstrap-core /app/boogiepop-bootstrap-core
 COPY --from=builder /app/boogiepop-bootstrap/package*.json ./
 COPY --from=builder /app/boogiepop-bootstrap/node_modules ./node_modules
 COPY --from=builder /app/boogiepop-bootstrap/dist ./dist
