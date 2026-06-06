@@ -2,13 +2,13 @@ FROM node:22-bookworm-slim AS builder
 
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /app/core
+WORKDIR /app/boogiepop-bootstrap-core
 COPY boogiepop-bootstrap-core/package*.json ./
 RUN npm ci
 COPY boogiepop-bootstrap-core/ ./
 RUN npm run build
 
-WORKDIR /app/ms
+WORKDIR /app/boogiepop-bootstrap
 COPY boogiepop-bootstrap/package*.json ./
 RUN npm ci
 COPY boogiepop-bootstrap/ ./
@@ -28,10 +28,10 @@ RUN apt-get update && apt-get install -y \
 WORKDIR /app
 ENV NODE_ENV=production
 
-COPY --from=builder /app/core /app/core
-COPY --from=builder /app/ms/package*.json ./
-COPY --from=builder /app/ms/node_modules ./node_modules
-COPY --from=builder /app/ms/dist ./dist
+COPY --from=builder /app/boogiepop-bootstrap-core /app/core
+COPY --from=builder /app/boogiepop-bootstrap/package*.json ./
+COPY --from=builder /app/boogiepop-bootstrap/node_modules ./node_modules
+COPY --from=builder /app/boogiepop-bootstrap/dist ./dist
 COPY boogiepop-bootstrap/docker/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
