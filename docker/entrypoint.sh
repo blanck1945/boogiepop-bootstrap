@@ -33,4 +33,12 @@ if [ -n "${INFRA_GIT_REPO:-}" ] && [ "${INFRA_SKIP_SYNC:-}" != "true" ]; then
   fi
 fi
 
+if [ -n "${BOOTSTRAP_TFVARS_SECRET:-}" ] && [ ! -f "$TF_DIR/terraform.tfvars" ]; then
+  aws secretsmanager get-secret-value \
+    --secret-id "$BOOTSTRAP_TFVARS_SECRET" \
+    --region "${AWS_REGION:-us-east-1}" \
+    --query SecretString \
+    --output text > "$TF_DIR/terraform.tfvars"
+fi
+
 exec node dist/main.js
