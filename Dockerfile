@@ -16,7 +16,7 @@ RUN npm run build
 
 FROM node:22-bookworm-slim AS runner
 
-ARG TERRAFORM_VERSION=1.9.8
+ARG TERRAFORM_VERSION=1.10.5
 ARG CACHEBUST=1
 
 RUN apt-get update && apt-get install -y \
