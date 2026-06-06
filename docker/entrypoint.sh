@@ -13,7 +13,7 @@ if [ -n "${INFRA_GIT_REPO:-}" ]; then
     TMP="/tmp/infra-clone.$$"
     BRANCH="${INFRA_GIT_BRANCH:-main}"
     git clone --depth 1 -b "$BRANCH" "$CLONE_URL" "$TMP"
-    cp -a "$TMP/terraform/." "$TF_DIR/"
+    cp -r "$TMP/terraform/." "$TF_DIR/"
     rm -rf "$TMP"
   elif [ -d "$TF_DIR/.git" ]; then
     cd "$TF_DIR"
