@@ -15,14 +15,21 @@ sync_infra_from_git() {
   rm -rf "$TF_DIR"/*
   (cd "$TMP/terraform" && tar cf - .) | (cd "$TF_DIR" && tar xf -)
   rm -rf "$TMP"
+  touch "$TF_DIR/.infra-sync-ok"
 }
 
+needs_sync=false
+if [ "${INFRA_FORCE_SYNC:-}" = "true" ]; then
+  needs_sync=true
+elif [ ! -f "$TF_DIR/.infra-sync-ok" ]; then
+  needs_sync=true
+elif [ ! -f "$TF_DIR/versions.tf" ] || [ ! -f "$TF_DIR/ecs.tf" ]; then
+  needs_sync=true
+fi
+
 if [ -n "${INFRA_GIT_REPO:-}" ] && [ "${INFRA_SKIP_SYNC:-}" != "true" ]; then
-  if [ ! -f "$TF_DIR/versions.tf" ] || [ ! -f "$TF_DIR/ecs.tf" ]; then
+  if [ "$needs_sync" = true ]; then
     sync_infra_from_git
-  elif [ -d "$TF_DIR/.git" ]; then
-    cd "$TF_DIR"
-    git pull --ff-only || true
   fi
 fi
 
