@@ -2,6 +2,7 @@ import { Injectable, ServiceUnavailableException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
   checkProjectNameAvailability,
+  getGithubDeployStatus,
   inferProjectType,
   listGithubOrgs,
   orgConfigFromEnv,
@@ -148,6 +149,15 @@ export class BootstrapService {
       name: opts.name,
       hubVisible: opts.hubVisible,
       credentials: this.getBackendCredentials(),
+    });
+  }
+
+  async getDeployStatus(opts: { owner: string; repo: string; startedAfter: string }) {
+    return getGithubDeployStatus({
+      owner: opts.owner,
+      repo: opts.repo,
+      token: this.getGithubToken(),
+      startedAfter: new Date(opts.startedAfter),
     });
   }
 }

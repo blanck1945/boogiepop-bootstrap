@@ -19,6 +19,7 @@ import { ApiKeyGuard } from './api-key.guard';
 import { BootstrapService } from './bootstrap.service';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { CheckProjectNameDto } from './dto/check-project-name.dto';
+import { DeployStatusQueryDto } from './dto/deploy-status.dto';
 import {
   ApplicationVisibilityDto,
   RegisterApplicationDto,
@@ -58,6 +59,16 @@ export class BootstrapController {
     });
   }
 
+  @Get('projects/deploy-status')
+  @ApiOperation({ summary: 'Estado del workflow deploy.yml tras push a main' })
+  getDeployStatus(@Query() query: DeployStatusQueryDto) {
+    return this.bootstrapService.getDeployStatus({
+      owner: query.owner,
+      repo: query.repo,
+      startedAfter: query.startedAfter,
+    });
+  }
+
   @Post('projects')
   @ApiOperation({ summary: 'Crea proyecto desde seed (respuesta SSE)' })
   @ApiProduces('text/event-stream')
@@ -74,7 +85,7 @@ export class BootstrapController {
       res.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`);
     };
 
-    const emit = (step: string, status: 'running' | 'ok' | 'error', detail?: string) => {
+    const emit = (step: string, status: 'running' | 'ok' | 'error' | 'warn', detail?: string) => {
       send('step', { step, status, detail });
     };
 
