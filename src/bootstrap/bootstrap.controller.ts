@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  Param,
   Patch,
   Post,
   Query,
@@ -24,6 +25,7 @@ import {
   ApplicationVisibilityDto,
   RegisterApplicationDto,
 } from './dto/register-application.dto';
+import { SetAppEnvDto } from './dto/set-app-env.dto';
 
 @ApiTags('bootstrap')
 @ApiBearerAuth('BootstrapApiKey')
@@ -124,5 +126,36 @@ export class BootstrapController {
       name: dto.name,
       hubVisible: false,
     });
+  }
+
+  @Patch('applications/:name/env')
+  @ApiOperation({ summary: 'Agregar/actualizar variables de entorno (Secrets Manager + apply + restart)' })
+  @ApiProduces('text/event-stream')
+  async setApplicationEnv(
+    @Param('name') name: string,
+    @Body() dto: SetAppEnvDto,
+    @Res() res: Response,
+  ): Promise<void> {
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache, no-transform');
+    res.setHeader('Connection', 'keep-alive');
+    res.setHeader('X-Accel-Buffering', 'no');
+
+    const send = (event: string, data: object) => {
+      res.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`);
+    };
+    const emit = (step: string, status: 'running' | 'ok' | 'error' | 'warn', detail?: string) => {
+      send('step', { step, status, detail });
+    };
+
+    try {
+      const result = await this.bootstrapService.setApplicationEnv(name, dto, emit);
+      send('done', result);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      send('error', { message });
+    } finally {
+      res.end();
+    }
   }
 }
