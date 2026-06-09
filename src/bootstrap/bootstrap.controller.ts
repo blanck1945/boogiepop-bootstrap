@@ -128,6 +128,12 @@ export class BootstrapController {
     });
   }
 
+  @Get('applications/:name/env')
+  @ApiOperation({ summary: 'Leer variables de entorno actuales desde terraform.tfvars' })
+  async getApplicationEnv(@Param('name') name: string) {
+    return this.bootstrapService.getApplicationEnv(name);
+  }
+
   @Patch('applications/:name/env')
   @ApiOperation({ summary: 'Agregar/actualizar variables de entorno (Secrets Manager + apply + restart)' })
   @ApiProduces('text/event-stream')

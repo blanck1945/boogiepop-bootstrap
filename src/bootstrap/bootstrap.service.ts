@@ -166,6 +166,13 @@ export class BootstrapService {
     });
   }
 
+  async getApplicationEnv(name: string): Promise<Record<string, string>> {
+    const tfDir = this.getTerraformDir();
+    const tfName = name.replace(/-/g, '_');
+    const tfvarsPath = join(tfDir, 'terraform.tfvars');
+    return readAppEnvVars(tfvarsPath, tfName);
+  }
+
   async setApplicationEnv(
     name: string,
     dto: SetAppEnvDto,
